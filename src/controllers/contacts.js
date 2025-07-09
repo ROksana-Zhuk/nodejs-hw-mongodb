@@ -7,7 +7,7 @@ import { createContact } from '../services/contacts.js';
 
 
 export const getContactsController = async (req, res, next) => {
-    try {
+
     const contacts = await getAllContacts();
 
     res.json({
@@ -15,9 +15,6 @@ export const getContactsController = async (req, res, next) => {
       message: 'Successfully found contacts!',
       data: contacts,
       });
-    } catch(err) {
-        next(err);
-    };
 };
 
 export const getContactByIdController = async (req, res) => {
@@ -55,8 +52,7 @@ export const deleteContactController = async (req, res, next) => {
         const contact = await deleteContact(contactId);
 
         if (!contact) {
-          next(createHttpError(404, 'Contact not found'));
-          return;
+          throw createHttpError(404, 'Contact not found');
         }
 
         res.status(204).send();
@@ -70,8 +66,7 @@ export const upsertContactController = async (req, res, next) => {
     });
 
     if (!result) {
-      next(createHttpError(404, 'Contact not found'));
-      return;
+       throw createHttpError(404, 'Contact not found');
     }
 
     const status = result.isNew ? 201 : 200;
@@ -88,8 +83,7 @@ export const patchContactController = async (req, res, next) => {
     const result = await updateContact(contactId, req.body);
 
     if (!result) {
-      next(createHttpError(404, 'Contact not found'));
-      return;
+      throw createHttpError(404, 'Contact not found');
     }
 
     res.status(200).json({
