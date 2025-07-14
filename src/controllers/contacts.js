@@ -3,31 +3,40 @@ import { deleteContact, getAllContacts, getContactById, updateContact } from '..
 
 import createHttpError from 'http-errors';
 import { createContact } from '../services/contacts.js';
+import { parsePaginationParams } from '../utils/parsePaginationParams.js';
+import { parseSortParams } from '../utils/parseSortParams.js';
+import { parseFilterParams } from '../utils/parseFilterParams.js';
 
 
+export const getContactsController = async (req, res) => {
+    const { page, perPage } = parsePaginationParams(req.query);
+    const { sortBy, sortOrder } = parseSortParams(req.query);
+    const filter = parseFilterParams(req.query);
 
-export const getContactsController = async (req, res, next) => {
-
-    const contacts = await getAllContacts();
+    const contacts = await getAllContacts({
+      page,
+      perPage,
+      sortBy,
+      sortOrder,
+      filter,
+    });
 
     res.json({
       status: 200,
       message: 'Successfully found contacts!',
       data: contacts,
-      });
-};
+    });
+  };
+
 
 export const getContactByIdController = async (req, res) => {
     const { contactId } = req.params;
     const contact = await getContactById(contactId);
 
-
-  // Створення помилки
     if (!contact) {
       throw createHttpError(404, 'Contact not found');
     }
 
-    // Відповідь, якщо контакт знайдено
     res.json({
       status: 200,
       message: `Successfully found contact with id ${contactId}!`,
@@ -92,3 +101,6 @@ export const patchContactController = async (req, res, next) => {
       data: result.contact,
     });
 };
+
+
+
