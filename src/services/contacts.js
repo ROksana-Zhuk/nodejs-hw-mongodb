@@ -19,14 +19,14 @@ export const getAllContacts = async ({
         contactsQuery.where('contactType').equals(filter.contactType);
       }
 
-const [contactsCount, contacts] = await Promise.all([
-      ContactsCollection.find().merge(contactsQuery).countDocuments(),
-      contactsQuery
-          .skip(skip)
-          .limit(limit)
-          .sort({ [sortBy]: sortOrder })
-          .exec(),
-]);
+    const [contactsCount, contacts] = await Promise.all([
+          ContactsCollection.find().merge(contactsQuery).countDocuments(),
+          contactsQuery
+              .skip(skip)
+              .limit(limit)
+              .sort({ [sortBy]: sortOrder })
+              .exec(),
+    ]);
 
     const paginationData = calculatePaginationData(contactsCount, perPage, page);
 
