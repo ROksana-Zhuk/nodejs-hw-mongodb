@@ -27,7 +27,7 @@ router.delete('/contacts/:contactId', isValidId, ctrlWrapper(deleteContactContro
 
 
 router.get(
-    '/:contactId',
+    '/contacts/:contactId',
     isValidId,
     ctrlWrapper(getContactByIdController),
   );
