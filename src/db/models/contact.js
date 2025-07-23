@@ -24,6 +24,11 @@ import { model, Schema } from 'mongoose';
        enum: ['work', 'home', 'personal'],
        default: 'personal',
      },
+     userId: {
+       type: String,
+       required: true
+    },
+
    },
    {
      timestamps: true,
