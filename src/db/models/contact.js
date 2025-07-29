@@ -28,6 +28,9 @@ import { model, Schema } from 'mongoose';
        type: String,
        required: true
     },
+    photo: {
+       type: String
+    },
 
    },
    {

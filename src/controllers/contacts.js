@@ -6,6 +6,10 @@ import { createContact } from '../services/contacts.js';
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parseSortParams } from '../utils/parseSortParams.js';
 import { parseFilterParams } from '../utils/parseFilterParams.js';
+import { saveFileToUploadDir } from '../utils/saveFileToUploadDir.js';
+
+import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
+import { getEnvVar } from '../utils/getEnvVar.js';
 
 
 export const getContactsController = async (req, res) => {
@@ -54,8 +58,26 @@ export const createContactController = async (req, res) => {
     const userId = req.user._id;
     req.body.userId = userId;
 
+    const photo = req.file;
+
+    let photoUrl;
+
+    if (photo) {
+        if (getEnvVar('ENABLE_CLOUDINARY') === 'true') {
+
+            photoUrl = await saveFileToCloudinary(photo);
+        } else {
+            photoUrl = await saveFileToUploadDir(photo);
+        }
+    }
+
     //const contact = await createContact({ ...req.body, userId });
-    const contact = await createContact(req.body);
+    const contact = await createContact(
+        {
+            ...req.body,
+            photo: photoUrl
+        }
+    );
 
 
     res.status(201).json({
@@ -106,12 +128,31 @@ export const patchContactController = async (req, res, next) => {
 
     const userId = req.user._id;
     const { contactId } = req.params;
+    const photo = req.file;
 
+    let photoUrl;
 
-    const result = await updateContact(contactId, userId, req.body);
+    if (photo) {
+        if (getEnvVar('ENABLE_CLOUDINARY') === 'true') {
+
+          photoUrl = await saveFileToCloudinary(photo);
+        } else {
+          photoUrl = await saveFileToUploadDir(photo);
+        }
+    }
+
+    const result = await updateContact(
+        contactId,
+        userId,
+        {
+            ...req.body,
+            photo: photoUrl
+        }
+    );
 
     if (!result) {
-      throw createHttpError(404, 'Contact not found');
+        next(createHttpError(404, 'Contact not found'));
+        return;
     }
 
     res.status(200).json({
